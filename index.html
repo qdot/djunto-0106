@@ -1,0 +1,141 @@
+<html>
+  <head>
+    <!-- VexFlow Compiled Source -->
+    <script src="vexflow-min.js"></script>
+    
+    <script src="tquery-bundle.min.js"></script>
+    <script src="cf.js"></script>
+    <script src="CSS3DRenderer.js"></script>
+
+    <!-- Support Sources -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+  </head>
+  <body>
+    <div class="one">
+      <script>
+       var weather = [48,47,46,44,44,42,41,43,44,49,42,53,53,54,55,57,57,56,53,52,50,49,47,43];
+       var canvas = document.createElement("canvas");
+       canvas.width = 750;
+       var renderer = new Vex.Flow.Renderer(canvas,
+                                            Vex.Flow.Renderer.Backends.CANVAS);
+       var ctx = renderer.getContext();
+       var w = 650;
+       var stave = new Vex.Flow.Stave(10, 0, w);
+       stave.addClef("treble");
+       var keySig = new Vex.Flow.KeySignature("F");
+       keySig.addToStave(stave);
+       stave.setContext(ctx).draw();
+       // Create the notes
+       /* var notes = [
+       // A quarter-note C.
+       new Vex.Flow.StaveNote({ keys: ["c/4"], duration: "q" }),
+
+       // A quarter-note D.
+       new Vex.Flow.StaveNote({ keys: ["d/4"], duration: "q" }),
+
+       // A quarter-note rest. Note that the key (b/4) specifies the vertical
+       // position of the rest.
+       new Vex.Flow.StaveNote({ keys: ["b/4"], duration: "qr" }),
+
+       // A C-Major chord.
+       new Vex.Flow.StaveNote({ keys: ["c/4", "e/4", "g/4"], duration: "q" })
+       ]; */
+
+       var note_vals = {
+         41:"c/4",
+         42:"d/4",
+         43:"e/4",
+         44:"f/4",
+         45:"g/4",
+         46:"a/4",
+         47:"b/4",
+         48:"c/5",
+         49:"d/5",
+         50:"e/5",
+         51:"f/5",
+         52:"g/5",
+         53:"a/5",
+         54:"b/5",
+         55:"c/6",
+         56:"d/6",
+         57:"e/6"
+       };
+       var notes = [];
+       for (var i = 0; i < 8; ++i) {
+         notes.push(new Vex.Flow.StaveNote({ keys: [note_vals[41+(Math.floor(Math.random () *14))]], duration: "4" }));
+         if ((i == 3)) {
+           // start new measure
+           notes.push(new Vex.Flow.BarNote());
+         }
+       }
+       // Create a voice in 4/4
+       var voice = new Vex.Flow.Voice({
+         num_beats: 8,
+         beat_value: 4,
+         resolution: Vex.Flow.RESOLUTION
+       });
+
+       // Add notes to voice
+       voice.addTickables(notes);
+
+       // Format and justify the notes to 500 pixels
+       var formatter = new Vex.Flow.Formatter().
+                                              joinVoices([voice]).format([voice], w);
+       // Render voice
+       voice.draw(ctx, stave);
+
+       var world	= tQuery.createWorld().boilerplate().start();
+       //world.addFogExp2({density:0.05});
+       //	var object	= tQuery.createTorusKnot().addTo(world);
+
+	     world.tRenderer().setClearColor( 'black', 0);
+
+       world.removeCameraControls();
+	     world.camera().translateZ(10);
+
+	     var rendererCSS	= new THREE.CSS3DRenderer();
+	     rendererCSS.setSize( window.innerWidth, window.innerHeight );
+	     rendererCSS.domElement.style.position	= 'absolute';
+	     rendererCSS.domElement.style.top	= 0;
+	     rendererCSS.domElement.style.margin	= 0;
+	     rendererCSS.domElement.style.padding	= 0;
+	     document.body.appendChild( rendererCSS.domElement );
+
+	     THREEx.WindowResize.bind(rendererCSS, world.camera().get(0));		
+
+	     // put the mainRenderer on top
+	     var rendererMain	= world.tRenderer();
+	     rendererMain.domElement.style.position	= 'absolute';
+	     rendererMain.domElement.style.top	= 0;
+	     rendererMain.domElement.style.zIndex	= 1;
+	     rendererCSS.domElement.appendChild( rendererMain.domElement );
+
+	     var sceneCSS	= new THREE.Scene();
+	     var objectCSS 	= new THREE.CSS3DObject( canvas );
+       window.objectCSS	= objectCSS;
+	     objectCSS.scale.multiplyScalar(1 / 63.5);
+       objectCSS.width = 1000;
+       objectCSS.height = 1000;
+	     sceneCSS.add( objectCSS );
+
+
+       //sceneCSS.fog.color.setHSL( 0.51, 0.6, 0.6 );
+	     world.loop().hookPostRender(function(delta, now){
+		     rendererCSS.render( sceneCSS, world.tCamera() );
+	     });
+       /*
+       var currentDensity = 0.01;
+       var upDensity = function () {
+         currentDensity += 0.01;
+         console.log(currentDensity);
+         world.tScene().fog.density = currentDensity;
+         setTimeout(upDensity, 100);
+       };
+       upDensity();
+       */
+      </script>
+    </div>
+  </body>
+</html>
