@@ -1,8 +1,9 @@
 <html>
+
   <head>
     <!-- VexFlow Compiled Source -->
     <script src="vexflow-min.js"></script>
-    
+
     <script src="tquery-bundle.min.js"></script>
     <script src="cf.js"></script>
     <script src="CSS3DRenderer.js"></script>
@@ -15,87 +16,23 @@
   <body>
     <div class="one">
       <script>
-       var weather = [48,47,46,44,44,42,41,43,44,49,42,53,53,54,55,57,57,56,53,52,50,49,47,43];
+
        var canvas = document.createElement("canvas");
-       canvas.width = 750;
-       var renderer = new Vex.Flow.Renderer(canvas,
-                                            Vex.Flow.Renderer.Backends.CANVAS);
-       var ctx = renderer.getContext();
-       var w = 650;
-       var stave = new Vex.Flow.Stave(10, 0, w);
-       stave.addClef("treble");
-       var keySig = new Vex.Flow.KeySignature("F");
-       keySig.addToStave(stave);
-       stave.setContext(ctx).draw();
-       // Create the notes
-       /* var notes = [
-       // A quarter-note C.
-       new Vex.Flow.StaveNote({ keys: ["c/4"], duration: "q" }),
-
-       // A quarter-note D.
-       new Vex.Flow.StaveNote({ keys: ["d/4"], duration: "q" }),
-
-       // A quarter-note rest. Note that the key (b/4) specifies the vertical
-       // position of the rest.
-       new Vex.Flow.StaveNote({ keys: ["b/4"], duration: "qr" }),
-
-       // A C-Major chord.
-       new Vex.Flow.StaveNote({ keys: ["c/4", "e/4", "g/4"], duration: "q" })
-       ]; */
-
-       var note_vals = {
-         41:"c/4",
-         42:"d/4",
-         43:"e/4",
-         44:"f/4",
-         45:"g/4",
-         46:"a/4",
-         47:"b/4",
-         48:"c/5",
-         49:"d/5",
-         50:"e/5",
-         51:"f/5",
-         52:"g/5",
-         53:"a/5",
-         54:"b/5",
-         55:"c/6",
-         56:"d/6",
-         57:"e/6"
-       };
-       var notes = [];
-       for (var i = 0; i < 8; ++i) {
-         notes.push(new Vex.Flow.StaveNote({ keys: [note_vals[41+(Math.floor(Math.random () *14))]], duration: "4" }));
-         if ((i == 3)) {
-           // start new measure
-           notes.push(new Vex.Flow.BarNote());
-         }
-       }
-       // Create a voice in 4/4
-       var voice = new Vex.Flow.Voice({
-         num_beats: 8,
-         beat_value: 4,
-         resolution: Vex.Flow.RESOLUTION
-       });
-
-       // Add notes to voice
-       voice.addTickables(notes);
-
-       // Format and justify the notes to 500 pixels
-       var formatter = new Vex.Flow.Formatter().
-                                              joinVoices([voice]).format([voice], w);
-       // Render voice
-       voice.draw(ctx, stave);
-
+       var w = 750;
+       canvas.width = w;
        var world	= tQuery.createWorld().boilerplate().start();
-       //world.addFogExp2({density:0.05});
-       //	var object	= tQuery.createTorusKnot().addTo(world);
-
-	     world.tRenderer().setClearColor( 'black', 0);
-
+       world.addFogExp2({density:0.0001});
        world.removeCameraControls();
 	     world.camera().translateZ(10);
 
-	     var rendererCSS	= new THREE.CSS3DRenderer();
+       tQuery.createPlane().addTo(world)
+		         .scaleBy(16)
+		         .setBasicMaterial()
+			       .opacity(0)
+			       .blending(THREE.NoBlending)
+			                      .color('black')
+			                      .back()
+       var rendererCSS	= new THREE.CSS3DRenderer();
 	     rendererCSS.setSize( window.innerWidth, window.innerHeight );
 	     rendererCSS.domElement.style.position	= 'absolute';
 	     rendererCSS.domElement.style.top	= 0;
@@ -103,7 +40,7 @@
 	     rendererCSS.domElement.style.padding	= 0;
 	     document.body.appendChild( rendererCSS.domElement );
 
-	     THREEx.WindowResize.bind(rendererCSS, world.camera().get(0));		
+	     THREEx.WindowResize.bind(rendererCSS, world.camera().get(0));
 
 	     // put the mainRenderer on top
 	     var rendererMain	= world.tRenderer();
@@ -120,21 +57,92 @@
        objectCSS.height = 1000;
 	     sceneCSS.add( objectCSS );
 
-
        //sceneCSS.fog.color.setHSL( 0.51, 0.6, 0.6 );
 	     world.loop().hookPostRender(function(delta, now){
 		     rendererCSS.render( sceneCSS, world.tCamera() );
 	     });
-       /*
-       var currentDensity = 0.01;
-       var upDensity = function () {
-         currentDensity += 0.01;
-         console.log(currentDensity);
-         world.tScene().fog.density = currentDensity;
-         setTimeout(upDensity, 100);
+
+       var generate = function (s1, s2, fog) {
+         console.log("Generating!");
+         var context = canvas.getContext('2d');
+         context.clearRect(0, 0, canvas.width, canvas.height);
+         var renderer = new Vex.Flow.Renderer(canvas,
+                                              Vex.Flow.Renderer.Backends.CANVAS);
+         var ctx = renderer.getContext();
+
+         var stave = new Vex.Flow.Stave(10, 0, w);
+         stave.addClef("treble");
+         var keySig = new Vex.Flow.KeySignature("F");
+         keySig.addToStave(stave);
+         stave.setContext(ctx).draw();
+
+         var note_vals = {
+           41:"c/4",
+           42:"d/4",
+           43:"e/4",
+           44:"f/4",
+           45:"g/4",
+           46:"a/4",
+           47:"b/4",
+           48:"c/5",
+           49:"d/5",
+           50:"e/5",
+           51:"f/5",
+           52:"g/5",
+           53:"a/5",
+           54:"b/5",
+           55:"c/6",
+           56:"d/6",
+           57:"e/6"
+         };
+
+         var note_dur_max = 3;
+         var notes = [];
+         var note_total = 0;
+         var step_range = Math.abs(s1 - s2);
+         var start_note = s1 < s2 ? s1 : s2;
+         while(note_total < 2) {
+           var dur_pow = Math.floor(Math.random()*(note_dur_max)) + 1;
+           var dur = 1 / (Math.pow(2, dur_pow));
+           // If we're over bounds, shrink until measure fits
+           while ((dur + note_total) > 2) {
+             dur_pow += 1;
+             dur = 1 / (Math.pow(2, dur_pow));
+             if(dur_pow == note_dur_max) break;
+           }
+           note_total += dur;
+           notes.push(new Vex.Flow.StaveNote({ keys: [note_vals [start_note + Math.floor(Math.random()*step_range)]], duration: Math.pow(2,dur_pow).toString() }));
+         }
+         // Create a voice in 8/4
+         var voice = new Vex.Flow.Voice({
+           num_beats: 8,
+           beat_value: 4,
+           resolution: Vex.Flow.RESOLUTION
+         });
+         //voice.setStrict(false);
+         // Add notes to voice
+         voice.addTickables(notes);
+
+         // Format and justify the notes to 500 pixels
+         var formatter = new Vex.Flow.Formatter().
+                                                joinVoices([voice]).format([voice], w);
+         // Render voice
+         voice.draw(ctx, stave);
+         world.tScene().fog.density = fog;
        };
-       upDensity();
-       */
+
+       var index = 0;
+       var weather = [48,47,46,44,44,42,41,43,44,49,52,53,53,54,55,57,57,56,53,52,50,49,47,43];
+       var fog = [0,0,0,0,0,.1,.5,.5,.5,.5,.5,.1,.05,0,0,0,0,0,0,0,0,0,0,0];
+       var gen = function () {
+         generate(weather[index], weather[index + 1], fog[index]);
+         index += 1;
+         if(index < weather.length - 1) {
+           setTimeout(gen, 1000);
+         }
+       }
+
+       gen();
       </script>
     </div>
   </body>
