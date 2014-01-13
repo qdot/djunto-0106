@@ -17,18 +17,33 @@
     <div class="one">
       <script>
 
+       // Configuration variables
+       var beats_per_measure = 4;
+       // Milliseconds per measure
+       var ms_per_measure = 5000;
+       // Leadin time in ms
+       var leadin_time = ms_per_measure;
+       // Minimum note length in power of 2. i.e. 3 = 2^3 = 8 = 8th node, 4 = 16th note, etc
+       var min_note_power = 3;
+       // Weather and fog levels over 24 hours for Jan 10th
+       var weather = [48,47,46,44,44,42,41,43,44,49,52,53,53,54,55,57,57,56,53,52,50,49,47,43];
+       var fog = [0,0,0,0,0,.1,.5,.5,.5,.5,.5,.1,.05,0,0,0,0,0,0,0,0,0,0,0];
+
+       var w = 100 * beats_per_measure;
+       var h = 100 * weather.length;
+
        var canvas = document.createElement("canvas");
-       var w = 800;
+
        canvas.width = w;
-       canvas.height = 2000;
+       canvas.height = h;
        var world	= tQuery.createWorld().boilerplate().start();
        world.addFogExp2({density:0.0001});
        world.removeCameraControls();
 	     world.camera().translateZ(15);
-       world.camera().translateY(15);
+       world.camera().translateY(20);
 
        tQuery.createPlane().addTo(world)
-		         .scaleBy(32)
+		         .scaleBy(64)
 		         .setBasicMaterial()
 			       .opacity(0)
 			       .blending(THREE.NoBlending)
@@ -55,11 +70,8 @@
 	     var objectCSS 	= new THREE.CSS3DObject( canvas );
        window.objectCSS	= objectCSS;
 	     objectCSS.scale.multiplyScalar(1 / 63.5);
-       objectCSS.width = 1000;
-       objectCSS.height = 1000;
 	     sceneCSS.add( objectCSS );
 
-       //sceneCSS.fog.color.setHSL( 0.51, 0.6, 0.6 );
 	     world.loop().hookPostRender(function(delta, now){
 		     rendererCSS.render( sceneCSS, world.tCamera() );
 	     });
@@ -100,29 +112,28 @@
            57:"b/5"
          };
 
-         var note_dur_max = 3;
          var notes = [];
          var note_total = 0;
          var step_range = Math.abs(s1 - s2);
          var start_note = s1 < s2 ? s1 : s2;
-         while(note_total < 2) {
-           var dur_pow = Math.floor(Math.random()*(note_dur_max)) + 1;
+         while(note_total < (beats_per_measure / 4)) {
+           var dur_pow = Math.floor(Math.random()*(min_note_power)) + 1;
            var dur = 1 / (Math.pow(2, dur_pow));
            // If we're over bounds, shrink until measure fits
-           while ((dur + note_total) > 2) {
+           while ((dur + note_total) > (beats_per_measure / 4)) {
              dur_pow += 1;
              dur = 1 / (Math.pow(2, dur_pow));
-             if(dur_pow == note_dur_max) break;
+             if(dur_pow == min_note_power) break;
            }
            note_total += dur;
            notes.push(new Vex.Flow.StaveNote({ keys: [note_vals [start_note + Math.floor(Math.random()*step_range)]], duration: Math.pow(2,dur_pow).toString() }));
          }
          var voice = new Vex.Flow.Voice({
-           num_beats: 8,
+           num_beats: beats_per_measure,
            beat_value: 4,
            resolution: Vex.Flow.RESOLUTION
          });
-         //voice.setStrict(false);
+
          // Add notes to voice
          voice.addTickables(notes);
 
@@ -134,8 +145,6 @@
        };
 
        var index = 0;
-       var weather = [48,47,46,44,44,42,41,43,44,49,52,53,53,54,55,57,57,56,53,52,50,49,47,43];
-       var fog = [0,0,0,0,0,.1,.5,.5,.5,.5,.5,.1,.05,0,0,0,0,0,0,0,0,0,0,0];
        for (var i = 0; i < weather.length -1; ++i) {
          generate(weather[i], weather[i + 1]);
        }
@@ -145,11 +154,11 @@
          world.camera().translateY(-1.5);
          fog_index++;
          if(fog_index < fog.length) {
-           setTimeout(move, 6000);
+           setTimeout(move, ms_per_measure);
          }
        }
 
-       move();
+       setTimeout(move, leadin_time);
       </script>
     </div>
   </body>
