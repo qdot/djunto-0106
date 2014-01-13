@@ -18,15 +18,16 @@
       <script>
 
        var canvas = document.createElement("canvas");
-       var w = 750;
+       var w = 800;
        canvas.width = w;
+       canvas.height = 200;
        var world	= tQuery.createWorld().boilerplate().start();
        world.addFogExp2({density:0.0001});
        world.removeCameraControls();
 	     world.camera().translateZ(10);
 
        tQuery.createPlane().addTo(world)
-		         .scaleBy(16)
+		         .scaleBy(32)
 		         .setBasicMaterial()
 			       .opacity(0)
 			       .blending(THREE.NoBlending)
@@ -70,7 +71,7 @@
                                               Vex.Flow.Renderer.Backends.CANVAS);
          var ctx = renderer.getContext();
 
-         var stave = new Vex.Flow.Stave(10, 0, w);
+         var stave = new Vex.Flow.Stave(0, 0, w-100);
          stave.addClef("treble");
          var keySig = new Vex.Flow.KeySignature("F");
          keySig.addToStave(stave);
@@ -113,7 +114,6 @@
            note_total += dur;
            notes.push(new Vex.Flow.StaveNote({ keys: [note_vals [start_note + Math.floor(Math.random()*step_range)]], duration: Math.pow(2,dur_pow).toString() }));
          }
-         // Create a voice in 8/4
          var voice = new Vex.Flow.Voice({
            num_beats: 8,
            beat_value: 4,
@@ -125,7 +125,7 @@
 
          // Format and justify the notes to 500 pixels
          var formatter = new Vex.Flow.Formatter().
-                                                joinVoices([voice]).format([voice], w);
+                                                joinVoices([voice]).format([voice], w-150);
          // Render voice
          voice.draw(ctx, stave);
          world.tScene().fog.density = fog;
