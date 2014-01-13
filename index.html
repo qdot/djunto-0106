@@ -20,11 +20,12 @@
        var canvas = document.createElement("canvas");
        var w = 800;
        canvas.width = w;
-       canvas.height = 200;
+       canvas.height = 2000;
        var world	= tQuery.createWorld().boilerplate().start();
        world.addFogExp2({density:0.0001});
        world.removeCameraControls();
-	     world.camera().translateZ(10);
+	     world.camera().translateZ(15);
+       world.camera().translateY(15);
 
        tQuery.createPlane().addTo(world)
 		         .scaleBy(32)
@@ -63,38 +64,40 @@
 		     rendererCSS.render( sceneCSS, world.tCamera() );
 	     });
 
+       var stave_num = 0;
        var generate = function (s1, s2, fog) {
          console.log("Generating!");
          var context = canvas.getContext('2d');
-         context.clearRect(0, 0, canvas.width, canvas.height);
+         //context.clearRect(0, 0, canvas.width, canvas.height);
          var renderer = new Vex.Flow.Renderer(canvas,
                                               Vex.Flow.Renderer.Backends.CANVAS);
          var ctx = renderer.getContext();
 
-         var stave = new Vex.Flow.Stave(0, 0, w-100);
+         var stave = new Vex.Flow.Stave(0, stave_num * 100, w-100);
+         stave_num += 1;
          stave.addClef("treble");
          var keySig = new Vex.Flow.KeySignature("F");
          keySig.addToStave(stave);
          stave.setContext(ctx).draw();
 
          var note_vals = {
-           41:"c/4",
-           42:"d/4",
-           43:"e/4",
-           44:"f/4",
-           45:"g/4",
-           46:"a/4",
-           47:"b/4",
-           48:"c/5",
-           49:"d/5",
-           50:"e/5",
-           51:"f/5",
-           52:"g/5",
-           53:"a/5",
-           54:"b/5",
-           55:"c/6",
-           56:"d/6",
-           57:"e/6"
+           41:"g/3",
+           42:"a/3",
+           43:"b/3",
+           44:"c/4",
+           45:"d/4",
+           46:"e/4",
+           47:"f/4",
+           48:"g/4",
+           49:"a/4",
+           50:"b/4",
+           51:"c/5",
+           52:"d/5",
+           53:"e/5",
+           54:"f/5",
+           55:"g/5",
+           56:"a/5",
+           57:"b/5"
          };
 
          var note_dur_max = 3;
@@ -128,21 +131,25 @@
                                                 joinVoices([voice]).format([voice], w-150);
          // Render voice
          voice.draw(ctx, stave);
-         world.tScene().fog.density = fog;
        };
 
        var index = 0;
        var weather = [48,47,46,44,44,42,41,43,44,49,52,53,53,54,55,57,57,56,53,52,50,49,47,43];
        var fog = [0,0,0,0,0,.1,.5,.5,.5,.5,.5,.1,.05,0,0,0,0,0,0,0,0,0,0,0];
-       var gen = function () {
-         generate(weather[index], weather[index + 1], fog[index]);
-         index += 1;
-         if(index < weather.length - 1) {
-           setTimeout(gen, 1000);
+       for (var i = 0; i < weather.length -1; ++i) {
+         generate(weather[i], weather[i + 1]);
+       }
+       var fog_index = 0;
+       var move = function () {
+         world.tScene().fog.density = fog[fog_index];
+         world.camera().translateY(-1.5);
+         fog_index++;
+         if(fog_index < fog.length) {
+           setTimeout(move, 6000);
          }
        }
 
-       gen();
+       move();
       </script>
     </div>
   </body>
